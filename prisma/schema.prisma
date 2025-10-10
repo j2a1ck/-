@@ -21,6 +21,8 @@ model User {
   password  String
   role  Role
   posts  Post[]
+  resetToken String?
+  resetTokenExpires DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
