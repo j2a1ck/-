@@ -7,12 +7,14 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { generateResetToken } from '../common/utils/token.util';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async signUp(email: string, pass: string) {
@@ -65,9 +67,8 @@ export class AuthService {
       resetTokenExpires: expires,
     });
 
-    const resetLink = `${process.env.forgetPasswordLink}${token}`;
-    console.log('Password reset link:', resetLink); // replace with email service
-    return resetLink;
+    await this.mailService.sendPasswordRestEmail(email, token);
+    return { messgae: 'email has been send' };
   }
 
   async resetPassword(email: string, token: string, newPassword: string) {
