@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -45,7 +46,6 @@ export class AuthService {
         message: 'User login successfully',
       };
     } catch (error) {
-      console.log(error as string);
       return { access_token: '', message: 'Login failed' };
     }
   }

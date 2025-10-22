@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
@@ -7,16 +11,22 @@ export class PostService {
 
   async createArticle(title: string, text: string, id: number) {
     try {
-      await this.prisma.post.create({
+      const newPost = await this.prisma.post.create({
         data: {
           title: title,
           text: text,
           author_id: id,
         },
       });
-      return { message: 'your post added successfully' };
+      return { message: 'your post added successfully', postId: newPost.id };
     } catch (error) {
-      return { message: 'there is problem' };
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid author ID provided');
+      }
+
+      throw new InternalServerErrorException(
+        'Failed to create article. Please try again.',
+      );
     }
   }
 
@@ -25,7 +35,6 @@ export class PostService {
       const articles = await this.prisma.post.findMany();
       return articles;
     } catch (error) {
-      console.error('Error fetching articles:', error);
       return { message: 'there is problem wtih returning all articles' };
     }
   }
